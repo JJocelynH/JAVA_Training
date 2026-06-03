@@ -1,0 +1,793 @@
+1. Question List (write necessary code to answer the following questions)
+    
+    List vs Set
+    
+    ```java
+    import java.util.*;
+    //List allows duplicate and the items in list are ordered
+    //Set doesn't allow duplicate and no guaranteed order
+    public class ListVsSet {
+        public static void main(String[] args) {
+            List<String> list = new ArrayList<>();
+            list.add("banana");
+            list.add("apple");
+            list.add("cherry");
+            list.add("date");
+            list.add("elderberry");
+            list.add("fig");
+            list.add("grape");
+            list.add("apple");
+            System.out.println("list: "+list);
+            System.out.println("list: "+list);
+            //access by index
+            System.out.println("index 0 :"+list.get(0));
+    
+            //hashset does not preserve insertion order
+            Set<String> set = new HashSet<>();
+            set.add("banana");
+            set.add("apple");
+            set.add("cherry");
+            set.add("date");
+            set.add("elderberry");
+            set.add("fig");
+            set.add("grape");
+            set.add("apple");
+            System.out.println("set: "+ set);
+    
+            //linkedhashset preserve insertion order
+            Set<String> linked = new LinkedHashSet<>();
+            linked.add("banana");
+            linked.add("apple");
+            linked.add("cherry");
+            linked.add("grape");
+            linked.add("fig");
+            linked.add("date");
+    
+            System.out.println("linkedhashset: " + linked);
+    
+            //tree set will maintain an alphabetical order
+            Set<String> tree = new TreeSet<>(set);
+    
+            System.out.println("treeset: " + tree);
+    
+        }
+    }
+    
+    ```
+    
+    LinkedList vs ArrayList
+    
+    ```java
+    
+    import java.util.*;
+    
+    public class LinkedlistVsArraylist {
+        //Both implemented list
+        //Arraylist use dynamic array internally. Fast for indexing O(1), slow for delete/insert O(n)
+        //Linkedlist fast for insert/delete at the end O(1), slow for indexing O(n). And also implements deque so can be used as queue or stack
+    
+        public static void main(String[] args) {
+            List<Integer> arrayList = new ArrayList<>();
+            LinkedList<Integer> linkedList = new LinkedList<>();
+    
+            int SIZE = 10000;
+    
+            for (int i = 0; i < 10000; i++){
+                arrayList.add(i);
+                linkedList.add(i);
+            }
+    
+            long start = System.nanoTime();
+            for (int i= 0; i < 1000; i++){
+                arrayList.add(SIZE/2,99);
+            }
+            long end = System.nanoTime();
+            System.out.println("ArrayList insert in the middle 1000 times: " + (end - start) / 1000000 + "ms");
+    
+            // LinkedList insert from the top
+            start = System.nanoTime();
+            for (int i = 0; i < 1000; i++) {
+                linkedList.addFirst(99); // insert from the top
+            }
+            end = System.nanoTime();
+            System.out.println("LinkedList insert from the top 1000 times: " + (end - start) / 1000000 + "ms");
+    
+            // random access
+            start = System.nanoTime();
+            for (int i = 0; i < 1000; i++) {
+                arrayList.get(SIZE / 2);
+            }
+            end = System.nanoTime();
+            System.out.println("ArrayList random access 1000 times: " + (end - start) / 1000000 + "ms");
+    
+            start = System.nanoTime();
+            for (int i = 0; i < 1000; i++) {
+                linkedList.get(SIZE / 2);
+            }
+            end = System.nanoTime();
+            System.out.println("LinkedList random access 1000 times: " + (end - start) / 1000000 + "ms");
+        }
+    
+        }
+    
+    ```
+    
+    What is Map Interface
+    
+    ```java
+    import java.util.*;
+    
+    public class MapInterface {
+        public static void main(String[] args) {
+            // HashMap: key-value store, O(1) average for get/put
+            Map scores = new HashMap<>();
+            scores.put("Alice", 95);
+            scores.put("Bob", 80);
+            scores.put("Charlie", 92);
+    
+            System.out.println("Alice's score: " + scores.get("Alice")); // 95
+            System.out.println("Contains Bob: " + scores.containsKey("Bob")); // true
+    
+            // Update a value
+            scores.put("Bob", 85);
+    
+            // Iterate entries
+            for (Map.Entry entry : scores.entrySet()) {
+                System.out.println(entry.getKey() + " → " + entry.getValue());
+            }
+    
+            // getOrDefault: safe get with fallback
+            int dave = scores.getOrDefault("Dave", 0);
+            System.out.println("Dave: " + dave); // 0
+    
+            // putIfAbsent: only inserts if key is missing
+            scores.putIfAbsent("Alice", 100); // ignored, Alice exists
+            System.out.println("Alice still: " + scores.get("Alice")); // 95
+    
+            // LinkedHashMap: preserves insertion order
+            Map linked = new LinkedHashMap<>(scores);
+            System.out.println("LinkedHashMap keys: " + linked.keySet());
+    
+            // TreeMap: sorted by key
+            Map tree = new TreeMap<>(scores);
+            System.out.println("TreeMap (sorted): " + tree);
+        }
+    }
+    
+    ```
+    
+    How does HashMap work
+    
+    ```java
+    import java.util.*;
+    
+    public class HowHashMapWorks {
+        public static void main(String[] args) {
+            Map map = new HashMap<>();
+    
+            // Step 1: hashCode("name") → index in internal array
+            // Step 2: store entry at that bucket
+            map.put("name", "Alice");
+            map.put("city", "NYC");
+            map.put("job",  "Engineer");
+    
+            // Step 3: on get, recompute index, walk bucket, equals() to match
+            System.out.println(map.get("name")); // Alice
+    
+            // Default capacity: 16 buckets, load factor: 0.75
+            // When size > 16 * 0.75 = 12, HashMap resizes (doubles) and rehashes
+    
+            // Demonstrating hash distribution:
+            String[] keys = {"a", "b", "c", "d"};
+            for (String k : keys) {
+                int hash = k.hashCode();
+                int bucket = hash & (16 - 1); // simulates (n-1) & hash
+                System.out.printf("key='%s' hashCode=%d bucket=%d%n", k, hash, bucket);
+            }
+    
+            // null key is always stored in bucket 0
+            map.put(null, "null-value");
+            System.out.println("null key → " + map.get(null));
+    
+            System.out.println("Size: " + map.size());
+        }
+    }
+    ```
+    
+    What is hash collision
+    
+    ```java
+    import java.util.*;
+    
+    public class HashCollision {
+    
+        // A deliberately bad hashCode because everything goes to bucket 0!
+        static class BadKey {
+            String value;
+            BadKey(String v) { this.value = v; }
+    
+            @Override
+            public int hashCode() { return 1; } // all keys → same bucket!
+    
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (!(o instanceof BadKey)) return false;
+                return value.equals(((BadKey) o).value);
+            }
+    
+            @Override
+            public String toString() { return value; }
+        }
+    
+        public static void main(String[] args) {
+            Map bad = new HashMap<>();
+            // All three collide into bucket 1 → forms a chain/tree
+            bad.put(new BadKey("x"), "X");
+            bad.put(new BadKey("y"), "Y");
+            bad.put(new BadKey("z"), "Z");
+    
+            // Still correct because equals() distinguishes them
+            System.out.println("x → " + bad.get(new BadKey("x"))); // X
+            System.out.println("y → " + bad.get(new BadKey("y"))); // Y
+            // But O(n) lookup instead of O(1) — terrible performance!
+    
+            // Good key: String has a well-distributed hashCode
+            Map good = new HashMap<>();
+            good.put("x", "X");
+            good.put("y", "Y");
+            good.put("z", "Z");
+            // Likely 3 separate buckets O(1) lookup
+            System.out.println("Good map: " + good.get("x")); // X
+        }
+    }
+    ```
+    
+    What is Collections used for
+    
+    ```java
+    import java.util.*;
+    
+    public class CollectionsUtility {
+        public static void main(String[] args) {
+            List nums = new ArrayList<>(Arrays.asList(5, 3, 8, 1, 9, 2));
+    
+            // Sorting
+            Collections.sort(nums);
+            System.out.println("Sorted: " + nums); // [1, 2, 3, 5, 8, 9]
+    
+            // Reverse order
+            Collections.sort(nums, Collections.reverseOrder());
+            System.out.println("Reversed: " + nums); // [9, 8, 5, 3, 2, 1]
+    
+            // Binary search (list must be sorted first)
+            Collections.sort(nums);
+            int idx = Collections.binarySearch(nums, 5);
+            System.out.println("Found 5 at index: " + idx);
+    
+            // Shuffle
+            Collections.shuffle(nums);
+            System.out.println("Shuffled: " + nums);
+    
+            // Min / Max
+            System.out.println("Min: " + Collections.min(nums));
+            System.out.println("Max: " + Collections.max(nums));
+    
+            // Frequency
+            List words = Arrays.asList("hi", "hello", "hi", "hey", "hi");
+            System.out.println("'hi' appears: " + Collections.frequency(words, "hi")); // 3
+    
+            // Unmodifiable wrapper (read-only view)
+            List readOnly = Collections.unmodifiableList(nums);
+            try {
+                readOnly.add(99); // throws UnsupportedOperationException
+            } catch (UnsupportedOperationException e) {
+                System.out.println("Cannot modify read-only list!");
+            }
+    
+            // Synchronized wrapper (thread-safe)
+            List syncList = Collections.synchronizedList(new ArrayList<>());
+            syncList.add(1);
+            System.out.println("Thread-safe list: " + syncList);
+    
+            // Singleton: immutable single-element collection
+            List one = Collections.singletonList("only");
+            System.out.println("Singleton: " + one);
+        }
+    }
+    ```
+    
+    What is immutable class
+    
+    ```java
+    import java.util.ArrayList;
+    import java.util.Collections;
+    import java.util.List;
+    
+    // Immutable class recipe:
+    // 1. final class (no subclassing)
+    // 2. private final fields
+    // 3. no setters
+    // 4. deep-copy mutable fields (e.g. List)
+    public final class ImmutablePerson {
+        private final String name;
+        private final int age;
+        private final List hobbies; // mutable field — needs deep copy
+    
+        public ImmutablePerson(String name, int age, List hobbies) {
+            this.name = name;
+            this.age = age;
+            // Deep copy: don't store the caller's list directly
+            this.hobbies = new ArrayList<>(hobbies);
+        }
+    
+        public String getName()  { return name; }
+        public int getAge()      { return age; }
+    
+        // Return a copy — never expose the internal list
+        public List getHobbies() {
+            return Collections.unmodifiableList(hobbies);
+        }
+    
+        @Override
+        public String toString() {
+            return name + " (age " + age + "): " + hobbies;
+        }
+    
+        public static void main(String[] args) {
+            List h = new ArrayList<>();
+            h.add("reading");
+            h.add("coding");
+    
+            ImmutablePerson p = new ImmutablePerson("Alice", 30, h);
+            System.out.println(p); // Alice (age 30): [reading, coding]
+    
+            // Mutating the original list doesn't affect p
+            h.add("gaming");
+            System.out.println(p); // still [reading, coding]
+    
+            // Trying to mutate the returned list throws
+            try {
+                p.getHobbies().add("hacking");
+            } catch (UnsupportedOperationException e) {
+                System.out.println("Cannot modify immutable list!");
+            }
+    
+            // Java 16+ record syntax achieves the same for simple cases:
+            // record Point(int x, int y) {}
+        }
+    }
+    ```
+    
+    HashTable vs HashMap vs ConcurrentHashmap
+    
+    ```java
+    import java.util.*;
+    import java.util.concurrent.*;
+    
+    public class MapThreadSafety {
+        public static void main(String[] args) throws InterruptedException {
+    
+            // Hashtable: synchronized, legacy, slow
+            Hashtable table = new Hashtable<>();
+            table.put("a", 1);
+            // table.put(null, 1); // NullPointerException!
+            System.out.println("Hashtable: " + table);
+    
+            //HashMap: fast, NOT thread-safe
+            HashMap hashMap = new HashMap<>();
+            hashMap.put("a", 1);
+            hashMap.put(null, 0); // null key allowed
+            System.out.println("HashMap: " + hashMap);
+    
+            // Race condition example (DON'T do this in production):
+            // Two threads calling hashMap.put() concurrently can corrupt the map!
+    
+            // ConcurrentHashMap: thread-safe, high performance
+            ConcurrentHashMap concurrent = new ConcurrentHashMap<>();
+    
+            // Safe atomic operation: increment a counter
+            concurrent.put("count", 0);
+    
+            Runnable increment = () -> {
+                for (int i = 0; i < 1000; i++) {
+                    concurrent.merge("count", 1, Integer::sum); // atomic!
+                }
+            };
+    
+            Thread t1 = new Thread(increment);
+            Thread t2 = new Thread(increment);
+            t1.start(); t2.start();
+            t1.join();  t2.join();
+    
+            System.out.println("Final count: " + concurrent.get("count")); // 2000
+    
+            // concurrent.put(null, 1); // NullPointerException!
+    
+            // Summary table:
+            System.out.println("
+    Summary:");
+            System.out.println("Hashtable:         thread-safe, no null key, legacy");
+            System.out.println("HashMap:           not safe,    null key ok, modern");
+            System.out.println("ConcurrentHashMap: thread-safe, no null key, best choice");
+        }
+    }
+    ```
+    
+    String vs StringBuilder vs StringBuffer
+    
+    ```java
+    public class StringComparison {
+        public static void main(String[] args) {
+    
+            // String: immutable
+            String s = "Hello";
+            s = s + " World"; // creates a NEW String object each time
+            System.out.println(s); // Hello World
+    
+            // Identity check: same literal → same pool object
+            String a = "java";
+            String b = "java";
+            System.out.println(a == b);       // true (string pool)
+            System.out.println(a.equals(b));  // true
+    
+            String c = new String("java");
+            System.out.println(a == c);       // false (heap object)
+            System.out.println(a.equals(c));  // true — always use equals()!
+    
+            // BAD: O(n²) — creates n intermediate String objects
+            String bad = "";
+            for (int i = 0; i < 5; i++) {
+                bad += i; // new String each iteration!
+            }
+            System.out.println("Bad: " + bad);
+    
+            // GOOD: StringBuilder — O(n), single buffer
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 5; i++) {
+                sb.append(i);
+            }
+            sb.insert(0, "nums: ");   // insert at position
+            sb.reverse();              // reverse in place
+            System.out.println("SB: " + sb.toString());
+    
+            sb.delete(0, 5);           // delete range
+            System.out.println("After delete: " + sb);
+    
+            // StringBuffer: thread-safe (synchronized), same API as StringBuilder
+            StringBuffer buf = new StringBuffer();
+            buf.append("thread");
+            buf.append("-safe");
+            System.out.println("Buffer: " + buf.toString());
+    
+            // Performance note:
+            // String concat in loop: ~O(n²) time & memory
+            // StringBuilder.append in loop: O(n) — always prefer this
+        }
+    }
+    ```
+    
+    why we need to override the hashcode and equals method at the same time
+    
+    ```java
+    import java.util.*;
+    
+    public class HashCodeEqualsContract {
+    
+        // BAD: overrides equals only — breaks HashMap!
+        static class BadPoint {
+            int x, y;
+            BadPoint(int x, int y) { this.x = x; this.y = y; }
+    
+            @Override
+            public boolean equals(Object o) {
+                if (!(o instanceof BadPoint)) return false;
+                BadPoint p = (BadPoint) o;
+                return x == p.x && y == p.y;
+            }
+            // hashCode NOT overridden → inherits Object.hashCode() (memory address)
+        }
+    
+        // GOOD: overrides both, maintaining the contract
+        static class GoodPoint {
+            int x, y;
+            GoodPoint(int x, int y) { this.x = x; this.y = y; }
+    
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (!(o instanceof GoodPoint)) return false;
+                GoodPoint p = (GoodPoint) o;
+                return x == p.x && y == p.y;
+            }
+    
+            @Override
+            public int hashCode() {
+                return Objects.hash(x, y); // uses both fields
+            }
+        }
+    
+        public static void main(String[] args) {
+            // BadPoint breaks HashSet
+            Set badSet = new HashSet<>();
+            BadPoint b1 = new BadPoint(1, 2);
+            BadPoint b2 = new BadPoint(1, 2);
+    
+            System.out.println("b1.equals(b2): " + b1.equals(b2)); // true
+            badSet.add(b1);
+            badSet.add(b2); // should be duplicate, but...
+            System.out.println("BadPoint set size: " + badSet.size()); // 2 (BUG!)
+    
+            // GoodPoint works correctly
+            Set goodSet = new HashSet<>();
+            GoodPoint g1 = new GoodPoint(1, 2);
+            GoodPoint g2 = new GoodPoint(1, 2);
+    
+            System.out.println("g1.equals(g2): " + g1.equals(g2)); // true
+            goodSet.add(g1);
+            goodSet.add(g2);
+            System.out.println("GoodPoint set size: " + goodSet.size()); // 1 (correct!)
+    
+            // Also works as Map key
+            Map map = new HashMap<>();
+            map.put(g1, "origin area");
+            System.out.println("Lookup g2: " + map.get(g2)); // "origin area" ✓
+        }
+    }
+    ```
+    
+    play around the common data structure apis (map, set, queue, list), write some practice codes
+    
+    ```java
+    import java.util.*;
+    
+    public class DataStructureAPIs {
+        public static void main(String[] args) {
+    
+            //LIST (ArrayList) 
+            List list = new ArrayList<>(Arrays.asList(3, 1, 4, 1, 5));
+            list.add(9);              // append
+            list.add(0, 0);           // insert at index
+            list.remove(Integer.valueOf(1)); // remove by value (first occurrence)
+            list.set(0, 99);          // replace at index
+            System.out.println("List: " + list);
+            System.out.println("contains 5: " + list.contains(5));
+            Collections.sort(list);
+            System.out.println("Sorted: " + list);
+            list.subList(1, 3).clear(); // remove elements [1,3)
+            System.out.println("After subList clear: " + list);
+    
+            //SET (HashSet)
+            Set set = new HashSet<>(Arrays.asList("a","b","c"));
+            set.add("d");
+            set.remove("b");
+            System.out.println("
+    Set: " + set);
+            System.out.println("contains 'a': " + set.contains("a"));
+            Set other = new HashSet<>(Arrays.asList("a","e"));
+            set.retainAll(other); // intersection
+            System.out.println("Intersection: " + set); // [a]
+    
+            // QUEUE (LinkedList / PriorityQueue)
+            Queue queue = new LinkedList<>();
+            queue.offer("first");  // enqueue (prefer offer over add)
+            queue.offer("second");
+            queue.offer("third");
+            System.out.println("
+    Queue peek: " + queue.peek());   // first (no remove)
+            System.out.println("Queue poll: " + queue.poll());     // first (removes)
+            System.out.println("Queue size: " + queue.size());     // 2
+    
+            // PriorityQueue: min-heap by default
+            PriorityQueue pq = new PriorityQueue<>();
+            pq.offer(5); pq.offer(1); pq.offer(3);
+            System.out.println("PQ poll (min): " + pq.poll()); // 1
+            // Max-heap: new PriorityQueue<>(Collections.reverseOrder())
+    
+            // Deque: double-ended queue
+            Deque deque = new ArrayDeque<>();
+            deque.offerFirst("front");
+            deque.offerLast("back");
+            System.out.println("Deque: " + deque);
+    
+            // MAP (HashMap)
+            Map> map = new HashMap<>();
+            // Group numbers by parity
+            int[] nums = {1, 2, 3, 4, 5, 6};
+            for (int n : nums) {
+                String key = n % 2 == 0 ? "even" : "odd";
+                map.computeIfAbsent(key, k -> new ArrayList<>()).add(n);
+            }
+            System.out.println("
+    Grouped: " + map);
+    
+            // Frequency count pattern
+            Map freq = new HashMap<>();
+            for (char c : "interview".toCharArray()) {
+                freq.merge(c, 1, Integer::sum);
+            }
+            System.out.println("Char freq: " + freq);
+    
+            // Sort map by value
+            freq.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue().reversed())
+                .limit(3)
+                .forEach(e -> System.out.println("  '" + e.getKey() + "': " + e.getValue()));
+        }
+    }
+    ```
+    
+    String vs StringBuilder vs StringBuffer
+    
+    ```java
+    public class StringDemo {
+        public static void main(String[] args) {
+    
+            // Strings are immutable — every operation makes a NEW object
+            String s = "Hello";
+            s = s + " World";   // s now points to a NEW String; old one is GC'd
+            System.out.println(s); // Hello World
+    
+            // String pool: literals share the same reference
+            String a = "java";
+            String b = "java";
+            System.out.println(a == b);      // true  (same pool object)
+            System.out.println(a.equals(b)); // true
+    
+            // new String bypasses the pool
+            String c = new String("java");
+            System.out.println(a == c);      // false (different heap object)
+            System.out.println(a.equals(c)); // true  — always use equals()!
+    
+            // BAD: O(n²) — n intermediate String objects in a loop
+            String bad = "";
+            for (int i = 0; i < 5; i++) {
+                bad += i;  // new String each iteration
+            }
+            System.out.println("Bad concat: " + bad); // 01234
+    
+            // Useful String methods
+            String str = "  Hello, Java!  ";
+            System.out.println(str.trim());             // "Hello, Java!"
+            System.out.println(str.trim().toLowerCase()); // "hello, java!"
+            System.out.println(str.trim().replace("Java", "World")); // "Hello, World!"
+            System.out.println("hello".contains("ell")); // true
+            System.out.println("hello".startsWith("he")); // true
+            System.out.println(String.join("-", "a","b","c")); // a-b-c
+            System.out.println("a,b,c".split(",").length);     // 3
+        }
+    }
+    ```
+    
+    Comparator vs Comparable, when to use which one
+    
+    ```java
+    import java.util.*;
+    
+    // Comparable: class defines its OWN natural ordering
+    public class Student implements Comparable {
+        String name;
+        int gpa;  // sort by GPA by default
+    
+        Student(String name, int gpa) {
+            this.name = name;
+            this.gpa = gpa;
+        }
+    
+        @Override
+        public int compareTo(Student other) {
+            // Return negative → this comes first
+            // Return 0        → equal
+            // Return positive → other comes first
+            return Integer.compare(other.gpa, this.gpa); // descending GPA
+        }
+    
+        @Override
+        public String toString() {
+            return name + "(" + gpa + ")";
+        }
+    
+        public static void main(String[] args) {
+            List students = new ArrayList<>();
+            students.add(new Student("Alice", 88));
+            students.add(new Student("Bob",   95));
+            students.add(new Student("Carol", 72));
+    
+            Collections.sort(students); // uses compareTo() — no extra arg
+            System.out.println(students);
+            // [Bob(95), Alice(88), Carol(72)]
+    
+            // Also works with TreeSet (natural order)
+            TreeSet set = new TreeSet<>(students);
+            System.out.println("First: " + set.first()); // Bob(95)
+        }
+    }
+    ```
+    
+    Overriding vs overloading
+    
+    ```java
+    public class OverloadingDemo {
+    
+        // Same method name, different parameter signatures
+        static int add(int a, int b) {
+            System.out.println("int + int");
+            return a + b;
+        }
+    
+        static double add(double a, double b) {
+            System.out.println("double + double");
+            return a + b;
+        }
+    
+        static int add(int a, int b, int c) {
+            System.out.println("int + int + int");
+            return a + b + c;
+        }
+    
+        static String add(String a, String b) {
+            System.out.println("String + String");
+            return a + b;
+        }
+    
+        public static void main(String[] args) {
+            System.out.println(add(1, 2));           // int + int → 3
+            System.out.println(add(1.5, 2.5));       // double + double → 4.0
+            System.out.println(add(1, 2, 3));         // int + int + int → 6
+            System.out.println(add("Hello", " World")); // String + String
+    
+            // Resolution is at COMPILE TIME based on argument types
+            // Changing runtime types doesn't affect which overload is called
+        }
+    
+        // Rules:
+        // ✓ Different number of parameters
+        // ✓ Different parameter types
+        // ✓ Different parameter order (generally bad practice)
+        // ✗ Return type alone is NOT enough to distinguish overloads
+        // ✗ Access modifier changes alone are NOT overloading
+    }
+    ```
+    
+    Java 8 basic data types
+    
+    ```java
+    public class PrimitiveTypes {
+        public static void main(String[] args) {
+    
+            // Integer types
+            byte   b = 127;                     // 8-bit,  range: -128 to 127
+            short  s = 32767;                   // 16-bit, range: -32,768 to 32,767
+            int    i = 2_147_483_647;           // 32-bit, range: ~-2.1B to 2.1B
+            long   l = 9_223_372_036_854_775_807L; // 64-bit (note the L suffix)
+    
+            // Floating point
+            float  f = 3.14f;                   // 32-bit (note the f suffix)
+            double d = 3.141592653589793;       // 64-bit — prefer over float
+    
+            // Other
+            boolean flag = true;                // true or false only
+            char    c    = 'A';                 // 16-bit Unicode, range 0–65,535
+    
+            System.out.println("byte:    " + b);
+            System.out.println("short:   " + s);
+            System.out.println("int:     " + i);
+            System.out.println("long:    " + l);
+            System.out.println("float:   " + f);
+            System.out.println("double:  " + d);
+            System.out.println("boolean: " + flag);
+            System.out.println("char:    " + c + " → int value: " + (int) c);
+    
+            // Default values (in fields, not local variables)
+            // byte, short, int, long → 0
+            // float, double          → 0.0
+            // boolean                → false
+            // char                   → '' (null char)
+    
+            // Useful constants
+            System.out.println("Int max:  " + Integer.MAX_VALUE);    // 2147483647
+            System.out.println("Long max: " + Long.MAX_VALUE);
+            System.out.println("Double max: " + Double.MAX_VALUE);
+        }
+    }
+    ```
