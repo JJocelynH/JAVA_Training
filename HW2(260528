@@ -1,0 +1,557 @@
+1. String vs StringBuilder vs StringBuffer
+    
+    Sting is immutable
+    StringBuilder is mutable but not thread safe
+    StringBuffer is mutable and thread safe
+    
+2. Comparator vs Comparable, when to use which one
+    
+    Both of them are interfaces. The class implement comparable itself which means the sorting logic is inside the class. Comparator is an external comparison rule can be passed in to the class to do compare. Comparable is used when there is a natural rule for the class like age, or alphabetical. Comparator is used when need multiple sorting strategies or you can’t modify the class.
+    
+3. Overriding vs overloading
+    
+    Overriding means when you define a same method in a subclass. Same method behaves differently in children and parent class. When we say overriding, that means those two methods need to have same method name, parameter and return type. And this is decide at the runtime.
+    
+    Overloading happens between the classes have same method name but different parameters. It happens within same class and during compile time. 
+    
+4. JRE vs JDK vs JVM
+    
+    JDK is java development kit for short, it includes all the tool you need for developing java program. JRE is java runtime environment for short, it provide the environment for java program to run. JVM is java virtual machine for short, it takes the compiled bytecode files and translates it into instructions that machine can understand
+    
+5. Java 8 basic data types
+    
+    int double char string bool short long byte
+    
+6. Primitive type, reference type
+    
+    primitive type means it store the value itself while reference type is pointing to some address
+    
+7. How does JVM work
+    
+    JVM generate instructions that machine can understand from bytecode
+    
+8. JVM memory data model
+    
+    JVM loads class files, execute bytecode by translating it into machine instructions. It also manage memory, and handle garbage collection automatically. All this was do in a platform independent way, meaning the same bytecode runs on Windows, Mac, or Linux as long as a JVM is installed.
+    
+9. How does GC work
+    
+    Garbage collection tracks which objects are no longer reachable, and automatically reclaims their memory so you don't get memory leaks like in C.
+    
+10. young/old/perm generation
+    
+    Heap memory in JVM is divided into generations because not all objects live the same length of time. Most objects die young — like local variables or temporary objects — while a few live a long time, like caches or static objects. By splitting memory into regions, GC can focus on the area most likely to have garbage instead of scanning the entire heap every time.
+    
+    New objects start in the Young Generation. GC happens most frequently here, called Minor GC, and most objects get collected here and never leave. Objects that survive enough Minor GCs get promoted to the Old Generation, where GC happens less often — called Major GC or Full GC — but each collection takes longer.
+    
+    There was also a third region called PermGen, which stored class definitions, method info, and static variables. It was removed in Java 8 and replaced by Metaspace, which moved that metadata outside the heap into native memory, and unlike PermGen it can dynamically expand instead of hitting a fixed size limit.
+    
+    The one-liner is: generational GC is an optimization — most objects die young and get collected quickly, while the few that survive long enough get promoted and collected less frequently.
+    
+11. difference types of GC
+    
+    The main types of Java garbage collectors all come down to one tradeoff: how much do you want to pause your application versus how complex the collector gets.
+    The simplest one is Serial GC. It uses a single thread and just freezes your entire application while it cleans up. Easy to understand, but only really usable for tiny apps. Parallel GC does the same thing but throws multiple threads at it, so it's faster overall, but your app still pauses. That's fine for batch jobs where nobody's waiting on a response.
+    Then came CMS, which tried to do most of the work while your app was still running, so pauses got much shorter. The downside was it was heavy on CPU and left the heap fragmented over time. It got deprecated in Java 9 and eventually removed in Java 14.
+    G1 GC came in to replace it and has been the default since Java 9. Instead of the fixed young and old regions we talked about, it splits the heap into a bunch of small equal-sized chunks and always goes after the ones with the most garbage first. That's literally where the name "Garbage First" comes from. It strikes a good balance between throughput and pause time, which is why most production apps just use this today.
+    If you really can't afford pauses, like you're building something that needs extremely low latency, there's ZGC. Introduced in Java 11, it does almost everything concurrently and keeps pauses under 1 millisecond even on massive heaps.
+    The overall trend is pretty straightforward. Each new GC traded some simplicity for shorter pauses, going from fully freezing your app to barely pausing it at all.
+    
+
+---
+
+1. Java modifier scope: public, private, protected, default scope
+    
+    There are four access levels in Java, and they control how visible a class member is to the outside world.
+    
+    public means anyone can access it from anywhere. private is the opposite — only the class itself can see it, not even subclasses. protected sits in the middle, allowing access within the same package and also from subclasses even if they're in a different package. Default, which is when you write no modifier at all, allows access within the same package but blocks subclasses that are outside the package.
+    
+    ```java
+    public class Animal {
+        public String name;     // anyone can access
+        protected int age;      // same package + subclasses
+        String type;            // same package only
+        private String secret;  // this class only
+    }
+    ```
+    
+    One thing worth watching out for: if you don't write any modifier, it is NOT private. It's default, which means the entire package can see it. That trips people up sometimes.
+    
+2. What is static scope
+    
+    static means the member belongs to the class itself, not to any specific instance.
+    
+3. how does classloader work
+ When you run a Java program, classes are not all loaded into memory at once. The classloader loads them on demand, meaning a class only gets loaded the first time it is actually needed.
+The loading process goes through three steps. First it loads the raw bytecode from the .class file into memory. Then it verifies that the bytecode is valid and safe to run. Finally it initializes the class, which means setting up static fields and running any static blocks.
+4. Describe the difference between unchecked and checked exceptions in Java.
+    
+    In Java, exceptions split into two categories based on whether the compiler forces you to handle them.
+    
+    Checked exceptions are ones the compiler knows might happen, so it requires you to either catch them or declare that your method throws them. They usually represent conditions outside your control, like a file not existing or a network being down.
+    
+    Unchecked exceptions are subclasses of RuntimeException and the compiler does not force you to handle them. They usually represent bugs in your own code, like accessing a null reference or going out of bounds on an array. The expectation is that you fix the code rather than catch the exception.
+    
+5. What is the difference between finally, final, and finalize in Java?
+    
+    These three look similar but have nothing to do with each other.
+    final is a keyword that means something cannot be changed. A final variable cannot be reassigned, a final method cannot be overridden by a subclass, and a final class cannot be extended at all. String is a well known example of a final class.
+    finally is a block that always runs after a try-catch, regardless of whether an exception was thrown or not. It is typically used to clean up resources like closing a file or database connection.
+    
+    finalize is a method on the Object class that the garbage collector calls before reclaiming an object's memory. In theory it sounds useful, but in practice it is unreliable because you have no control over when GC runs. It was deprecated in Java 9 and you should not use it in modern code.
+    
+    One-liner: final locks things down, finally always runs after a try-catch, and finalize is a deprecated GC hook you should forget about.
+    
+6. Define try-with resource. How can you say that it differs from an ordinary try?
+try-with-resources is a version of try that automatically closes resources when the block finishes, whether it exits normally or throws an exception.
+    
+    The key requirement is that the resource must implement the AutoCloseable interface, which just means it has a close() method. Most standard Java resources like file readers, database connections, and streams already implement it.
+    
+    The practical difference is that with an ordinary try you have to remember to close the resource yourself in a finally block, and that finally block can itself throw an exception and mask the original one. try-with-resources handles all of that for you cleanly and is always the preferred approach when working with resources in modern Java.
+    
+7. Define Runtime Exception. Describe it with the help of an example.
+    
+    A RuntimeException is an unchecked exception that happens during program execution, usually because of a bug in your own code. The compiler does not force you to handle it, and it typically means something in your logic went wrong rather than an external condition failing.
+    
+    A classic example is NullPointerException. If you try to call a method on an object that was never assigned, Java has nothing to work with and throws it at runtime.
+    
+    ```java
+    String s = null;
+    System.out.println(s.length()); 
+    
+    ```
+    
+    The compiler had no problem with this code and it compiled fine. The problem only showed up when the program actually ran and tried to call .length() on nothing. That is the defining characteristic of a RuntimeException — it is not a compile time problem, it is a logic problem that only surfaces during execution.
+    
+8. What is the difference between NoClassDefFoundError and ClassNotFoundException in Java
+    
+    Both happen when Java cannot find a class, but they occur in different situations.
+    
+    ClassNotFoundException is a checked exception that happens when you try to load a class dynamically at runtime using something like Class.forName(). The class was simply never on the classpath to begin with, and since you are loading it by name as a string, the compiler had no way to catch it earlier.
+    
+    NoClassDefFoundError is an error that happens when the class was available at compile time but cannot be found at runtime. This usually means the class existed when you compiled your code but got removed or is missing from the classpath when you actually run it.
+    
+    The key distinction is timing. ClassNotFoundException means the class was never there. NoClassDefFoundError means it was there when you compiled but disappeared by the time you ran the program.
+    
+9. Why should we clean up activities such as I/O resources in the finally block?
+
+Because finally is the only block that is guaranteed to run regardless of what happens in the try block.Because finally is the only block that is guaranteed to run regardless of what happens in the try block. Whether the code finishes normally, throws an exception, or even hits a return statement, finally still executes.
+If you put your cleanup inside the try block itself, it might never reach that line if an exception gets thrown before it. If you put it in the catch block, it only runs when an exception actually happens, not on the normal path.
+    
+    ```java
+    try {
+        FileReader fr = new FileReader("file.txt");
+        
+        fr.close(); 
+    } catch (IOException e) {
+        
+    }
+    
+    FileReader fr = null;
+    try {
+        fr = new FileReader("file.txt");
+    } catch (IOException e) {
+       
+    } finally {
+        if (fr != null) fr.close(); 
+    }
+    
+    ```
+    
+    I/O resources like file handles, database connections, and network sockets are limited by the operating system. If you do not close them, they stay open and eventually you run out, which causes your program to fail in ways that are hard to debug.
+    
+    That said, in modern Java the preferred approach is try-with-resources which handles this automatically, so you rarely need to write a finally block for cleanup yourself anymore.
+    
+10. Describe OutofMemoryError in exception handling.
+    
+    
+     OutOfMemoryError is thrown by the JVM when it runs out of heap memory and cannot allocate space for a new object. 
+    The most common cause is creating too many objects without releasing them, so garbage collector runs but cannot free enough memory because everything is still referenced. Another common cause is a memory leak, where objects pile up over time because something keeps holding references to them unintentionally.
+    
+11. What is Generics in Java? What are the advantages of using Generics?
+    
+    
+    ****Generics allow you to write classes and methods that work with any type while still being type-safe, by letting you specify the type as a parameter.
+    
+    ```java
+    // without generics
+    List list = new ArrayList();
+    list.add("hello");
+    String s = (String) list.get(0); // have to cast manually, can fail at runtime
+    
+    // with generics
+    List<String> list = new ArrayList<>();
+    list.add("hello");
+    String s = list.get(0); // no cast needed, compiler enforces the type
+    
+    ```
+    
+    The main advantage is catching type errors at compile time instead of runtime. Without generics, you could accidentally put an Integer into a list meant for Strings and the compiler would not complain. You would only find out when the program crashed. With generics the compiler catches that mistake immediately.
+    Generics also eliminate the need for manual casting, which makes code cleaner and less error prone. And they let you write reusable code that works across different types without duplicating logic.
+    
+    ```java
+    // one method works for any type
+    public <T> T getFirst(List<T> list) {
+        return list.get(0);
+    }
+    
+    getFirst(List.of("a", "b")); // returns String
+    getFirst(List.of(1, 2, 3));  // returns Integer
+    ```
+    
+12. How does Generics works in Java ? What is type erasure ?
+    
+    Generics let you write type-safe code by specifying the type as a parameter, and the compiler uses that information to catch type mismatches at compile time.
+    
+    Type erasure is what happens after compilation, that is all the generic type information gets stripped out and replaced with Object. So at runtime List<String> and List<Integer> are both just List. The compiler inserts casts automatically where needed, which is why you don't have to write them yourself.
+    
+    This is also why you can't do new T() or instanceof T inside a generic method — by the time the code runs, T no longer exists.
+    
+13. What is the difference between List<? extends T> and List <? super T>?
+    
+    `List<? extends T>` means the list holds T or some subclass of T. You can safely read from it because everything is guaranteed to be at least a T, but you cannot add to it because the compiler does not know the exact subtype.
+    
+    `List<? super T>` means the list holds T or some superclass of T. You can safely add T objects to it, but reading only gives you Object because the compiler does not know how far up the hierarchy it goes.
+    
+14. what is Optional class (write a demo code to use ofNullable, orElse, orElseThrow method)
+    
+    Optional is a wrapper for a value that might be null, so you don't have to write if (x == null) everywhere.
+    
+    ```java
+    import java.util.Optional;
+    
+    public class OptionalDemo {
+    
+        static String findUserById(int id) {
+            if (id == 1) return "Jocelyn";
+            return null;
+        }
+    
+        public static void main(String[] args) {
+    
+            // ofNullable wraps a value that could be null
+            Optional<String> found = Optional.ofNullable(findUserById(1));   // present
+            Optional<String> missing = Optional.ofNullable(findUserById(99)); // empty
+    
+            // orElse returns a fallback if empty
+            System.out.println(found.orElse("Anonymous"));   // Jocelyn
+            System.out.println(missing.orElse("Anonymous")); // Anonymous
+    
+            // orElseThrow throws if empty
+            System.out.println(found.orElseThrow(() -> new RuntimeException("Not found"))); // Jocelyn
+            System.out.println(missing.orElseThrow(() -> new RuntimeException("Not found"))); // throws!
+        }
+    }
+    ```
+    
+15. what is OOP
+    
+    Encapsulation: only expose what’s needed, hide the internal data
+    
+    ```java
+    public class BankAccount {
+        private double balance;  // hidden
+    
+        public void deposit(double amount) {
+            if (amount > 0) balance += amount;
+        }
+    
+        public double getBalance() {
+            return balance;
+        }
+    }
+    
+    ```
+    
+    Inheritance: a child class reuses and extends a parent class.
+    
+    ```java
+    public class Animal {
+        public void eat() {
+            System.out.println("eating...");
+        }
+    }
+    
+    public class Dog extends Animal {
+        public void bark() {
+            System.out.println("woof!");
+        }
+    }
+    
+    Dog dog = new Dog();
+    dog.eat();   // inherited from Animal
+    dog.bark();  // Dog's own method
+    ```
+    
+    Polymorphism: the same method behaves differently depending on the object.
+    
+    ```java
+    public class Animal {
+        public void sound() {
+            System.out.println("...");
+        }
+    }
+    
+    public class Dog extends Animal {
+        @Override
+        public void sound() {
+            System.out.println("woof");
+        }
+    }
+    
+    public class Cat extends Animal {
+        @Override
+        public void sound() {
+            System.out.println("meow");
+        }
+    }
+    
+    Animal a = new Dog();
+    a.sound(); // woof
+    
+    Animal b = new Cat();
+    b.sound(); // meow
+    ```
+    
+    Abstraction: hide complexity, expose only what the user needs to know.
+    
+    ```java
+    public abstract class Shape {
+        public abstract double area();  // no implementation here
+    }
+    
+    public class Circle extends Shape {
+        private double radius;
+    
+        public Circle(double radius) {
+            this.radius = radius;
+        }
+    
+        @Override
+        public double area() {
+            return Math.PI * radius * radius;
+        }
+    }
+    
+    Shape s = new Circle(5);
+    System.out.println(s.area()); // 78.53...
+    ```
+    
+
+---
+
+1. given a random character array, find the char with third highest frequence
+    1. input: [a, b, b, c, c, c], output: [a]
+    
+    ![image.png](attachment:9ea20b36-8c59-4ff8-990b-da1ce8637175:image.png)
+    
+2. reverse a string
+    1. input: “abc”, output: “cba”
+    
+    ![image.png](attachment:9a7c0d25-252b-4906-9c2d-45fb6fcbef77:image.png)
+    
+3. given an integer array and target, return all the pairs sum to the target, each element can only be used once
+    1. input: [1, 2, 3, 4] target = 5, return [[1, 4],[2, 3]]
+
+![image.png](attachment:54d763a5-d4b1-48a8-8bc7-0b5aadf45fd8:image.png)
+
+---
+
+1. what is functional interface
+    
+    functional interface has exactly one abstract method
+    
+2. what is default method
+A default method is a method inside an interface that has a body so you can add new methods to an interface without breaking all the classes that already implement it.
+
+3. what is the difference between Predicate, Supplier, Consumer, Function?
+    
+    All four are built-in functional interfaces in java. The difference is just what they take in and what they return.
+    
+    Predicate**:** takes something, returns boolean. Used for filtering/checking conditions.
+    
+    ```java
+    Predicate<String> isLong = s -> s.length() > 5;
+    System.out.println(isLong.test("hi"));      // false
+    System.out.println(isLong.test("Jocelyn")); // true
+    ```
+    
+    Function**:** takes something, returns something (can be a different type). Used for transforming data.
+    
+    ```java
+    Function<String, Integer> getLength = s -> s.length();
+    System.out.println(getLength.apply("Jocelyn")); // 7
+    ```
+    
+    Consumer: takes something, returns nothing. Used for side effects like printing or saving.
+    
+    ```java
+    Consumer<String> print = s -> System.out.println("Hello, " + s);
+    print.accept("Jocelyn"); // Hello, Jocelyn
+    ```
+    
+    Supplier: takes nothing, returns something. Used for lazy generation or providing values.
+    
+    ```java
+    Supplier<String> getName = () -> "Jocelyn";
+    System.out.println(getName.get()); // Jocelyn
+    ```
+    
+4. write a piece of code to use the Predicate, Supplier, Consumer, 
+Function interface
+
+```java
+import java.util.function.*;
+
+public class FunctionalDemo {
+    public static void main(String[] args) {
+
+        // Predicate: is the name longer than 5 characters?
+        Predicate<String> isLong = s -> s.length() > 5;
+
+        // Supplier: provides a name
+        Supplier<String> nameSupplier = () -> "Jocelyn";
+
+        // Function: converts name to uppercase
+        Function<String, String> toUpper = s -> s.toUpperCase();
+
+        // Consumer: prints a greeting
+        Consumer<String> greet = s -> System.out.println("Hello, " + s + "!");
+
+ 
+
+        String name = nameSupplier.get();          
+
+        if (isLong.test(name)) {                    
+            String upper = toUpper.apply(name);     
+            greet.accept(upper);                    
+        }
+    }
+}
+```
+
+1. what is method reference
+A method reference is a shorthand for a Lambda that just calls an existing method.
+2. what is CompleteableFuture
+CompletableFuture is a class for writing asynchronous, non-blocking code. Instead of waiting for a task to finish, you kick it off and define what to do when it's done.
+3. Default keyword vs Java default scope
+    
+    The default keyword is written explicitly inside an interface to give a method a body, so classes that implement the interface don't have to override it.
+    
+    Default scope is what happens when you write **nothing** as an access modifier on a class, method, or field. It means only classes in the same package can access it.
+    
+    The only thing they share is the word "default." One you write out, one you don't write at all.
+    
+4. Coding: create a list of students, Student Class has name, age, score three fields.
+
+List<Student> list = new ArrayList<>();
+
+- use stream api to find all the students’ name starting with ‘A’
+- use stream api to get the sum of all the students score
+- use stream api to find all the students whose sore >= 60
+- use stream api to retrieve all students name
+- use stream api to count the frequency of each age
+- use steam api to count the number of boys girls (groupby, collector.toMap())
+
+```java
+import java.util.*;
+import java.util.stream.*;
+
+public class StudentDemo {
+
+    static class Student {
+        String name;
+        int age;
+        double score;
+        String gender;
+
+        Student(String name, int age, double score, String gender) {
+            this.name = name;
+            this.age = age;
+            this.score = score;
+            this.gender = gender;
+        }
+    }
+
+    public static void main(String[] args) {
+
+        List<Student> list = new ArrayList<>();
+        list.add(new Student("Alice", 20, 88, "F"));
+        list.add(new Student("Amy", 21, 55, "F"));
+        list.add(new Student("Bob", 20, 72, "M"));
+        list.add(new Student("Charlie", 22, 45, "M"));
+        list.add(new Student("Anna", 21, 91, "F"));
+        list.add(new Student("David", 22, 63, "M"));
+
+        // 1. names starting with 'A'
+        List<String> startsWithA = list.stream()
+            .filter(s -> s.name.startsWith("A"))
+            .map(s -> s.name)
+            .collect(Collectors.toList());
+        System.out.println("Starts with A: " + startsWithA);
+        // [Alice, Amy, Anna]
+
+        // 2. sum of all scores
+        double totalScore = list.stream()
+            .mapToDouble(s -> s.score)
+            .sum();
+        System.out.println("Total score: " + totalScore);
+        // 414.0
+
+        // 3. students with score >= 60
+        List<String> passing = list.stream()
+            .filter(s -> s.score >= 60)
+            .map(s -> s.name)
+            .collect(Collectors.toList());
+        System.out.println("Passing: " + passing);
+        // [Alice, Bob, Anna, David]
+
+        // 4. all student names
+        List<String> allNames = list.stream()
+            .map(s -> s.name)
+            .collect(Collectors.toList());
+        System.out.println("All names: " + allNames);
+        // [Alice, Amy, Bob, Charlie, Anna, David]
+
+        // 5. frequency of each age
+        Map<Integer, Long> ageFrequency = list.stream()
+            .collect(Collectors.groupingBy(s -> s.age, Collectors.counting()));
+        System.out.println("Age frequency: " + ageFrequency);
+        // {20=2, 21=2, 22=2}
+
+        // 6. count boys and girls
+        Map<String, Long> genderCount = list.stream()
+            .collect(Collectors.groupingBy(s -> s.gender, Collectors.counting()));
+        System.out.println("Gender count: " + genderCount);
+        // {F=3, M=3}
+    }
+}
+```
+
+1. intermediate operation vs terminal operation
+Intermediate operations are lazy which means they just describe what to do but nothing actually runs yet. They always return a new Stream so you can keep chaining. Terminal operations trigger the whole pipeline to execute and return a final result, so you can't chain after it.
+
+Terminal operations trigger the entire pipeline to execute and return a final result, not a Stream.
+
+1. Coding: given a char array, use stream api to count the frequency of each char
+
+```java
+import java.util.*;
+import java.util.stream.*;
+
+public class CharFrequency {
+    public static void main(String[] args) {
+
+        char[] chars = {'a', 'b', 'a', 'c', 'b', 'a', 'd'};
+
+        Map<Character, Long> frequency = new String(chars).chars()
+            .mapToObj(c -> (char) c)
+            .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
+
+        System.out.println(frequency);
+        // {a=3, b=2, c=1, d=1}
+    }
+}
+```
+
+1. Steam API: map() vs flatmap();
