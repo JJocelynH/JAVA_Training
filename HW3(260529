@@ -1,0 +1,52 @@
+1. how to create a thread( 4 ways, write code)
+
+extend thread class, use runnable, use callable,  thread executor to use thread in thread pool. New a thread is not recommended because there is going to be a big overhead, since thread creation will include JVM native methods and operating system resources.
+
+```java
+//new thread
+
+```
+
+1. thread lifecycle, how does thread transfer from one state to another
+
+new, runnable, blocked, waiting, timed waiting and terminated. 
+A thread starts in the NEW state when created but not yet started. Calling start() moves it to RUNNABLE, where it's either running or ready to run waiting for CPU time.
+From RUNNABLE, a thread can go into one of three waiting states. It enters BLOCKED when it tries to acquire a synchronized lock that another thread is holding — it stays there until the lock is released. It enters WAITING when it calls wait(), join(), or LockSupport.park(), and it can only wake up when another thread explicitly calls notify() or notifyAll(). It enters TIMED_WAITING when it calls sleep(ms), wait(ms), or join(ms) — it wakes up automatically when the timeout expires, or earlier if notified.
+Once the run() method finishes or throws an unhandled exception, the thread moves to TERMINATED and cannot be restarted.
+The key distinction to remember: BLOCKED is always about waiting for a lock, while WAITING and TIMED_WAITING are about waiting for a signal from another thread.
+
+1. how does thread pool work
+
+thread pool have four parts, core thread, temporary thread, waiting queue and rejection handler. If the core threads are busy, thread pool will create temporary threads to the maximum pool size. If the temporary threads are idle for a longe
+
+1. what is the potential problem for the newCachedThreadPool and newFixedThreadPool and why
+
+1. what is Future
+
+1. what is CompletableFuture
+
+1. Future vs CompletableFuture
+
+1. Lock vs synchronized
+
+1. what is wait(), notify(), notifyAll(), join()
+when wait() is called the thread will stop and wait for it to be notified. notify is to turn the waiting threads to runnable, same as notifyall, is for turning all waiting threads into runnable. Join() is called to let the current thread wait for a specific thread to execute before it continue. wait(), notify(), notifyall() can be only used in sychronized block
+
+1. commonly used CompletableFuture api and write demo code for each of them
+    1. runAsync/ supplyAsync
+    runAsync does not return anything while supplyAsync can return
+    2. thenApply, thenApplyAsync
+    both of them are completablefuture methods. Then apply is to process the 
+    
+    ```java
+    
+    ```
+    
+    1. handle, exceptionally
+    2. thenCompose, thenCombine
+    thenCompose run two futures sequentially and the second depends on the first’s result
+    thenCombine runs two futures in parallel and combine their results together
+    3. allOf, anyOf
+    allOf will wait for all futures to finish and return
+    anyOf will return as soon as the fastest one finish
+    4. etc…..
