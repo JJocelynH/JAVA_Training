@@ -1,5 +1,7 @@
 {
   "userIgnoreFilters": [
-    "final questions/"
+    "final questions/",
+    "mock_note/",
+    "final_questions/"
   ]
 }
