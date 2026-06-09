@@ -3,5 +3,6 @@
     "final questions/",
     "mock_note/",
     "final_questions/"
-  ]
+  ],
+  "alwaysUpdateLinks": true
 }
