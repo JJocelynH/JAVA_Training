@@ -23,6 +23,9 @@
 11. garbage collector
     
 12. linked hashmap vs hashmap
+	1. Both store key-value pairs, but `LinkedHashMap` maintains insertion order — it remembers the order you put things in. `HashMap` has no guaranteed order.
+	2. Under the hood, `LinkedHashMap` adds a doubly linked list on top of `HashMap` to track insertion order, so it uses slightly more memory.
+	3. Use `HashMap` when you don't care about order. Use `LinkedHashMap` when order matters, like building a cache or returning data in a predictable sequence.
     
 13. hash map work flow, time complexity?
     
