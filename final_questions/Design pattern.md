@@ -46,3 +46,16 @@
     
 
 **
+4:22 PM
+
+
+
+
+
+## Claude responded: Recursion is when a method calls itself until it hits a base case.
+
+Recursion is when a method calls itself until it hits a base case. Iteration is when you use a loop like `for` or `while` to repeat something.
+
+Recursion is cleaner and more readable for problems that are naturally hierarchical like tree traversal. But each recursive call adds a new frame to the call stack, so too many calls can cause a `StackOverflowError`.
+
+Iteration is less elegant but more memory efficient because it doesn't grow the call stack.
